@@ -7,6 +7,8 @@ export const columnColors = {
   done: "#469A76",
 } as const;
 
+export const lightGray = "#EDF0F3";
+
 const theme = createTheme({
   palette: {
     primary: { main: "#3E66D7" },

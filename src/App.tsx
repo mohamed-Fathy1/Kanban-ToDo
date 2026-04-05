@@ -27,9 +27,13 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container color="background.paper">
+      <Container
+        maxWidth={false}
+        disableGutters
+        sx={{ bgcolor: "background.paper", minHeight: "100vh" }}
+      >
         <Header />
-        <Board />
+        <Board tasks={tasks} />
       </Container>
     </ThemeProvider>
   )
