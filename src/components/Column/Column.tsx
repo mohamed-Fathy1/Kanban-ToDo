@@ -51,7 +51,7 @@ function Column({ type, tasks }: { type: ColumnType, tasks: Task[] }) {
     return (
         <Paper sx={{ width: 380, p: 2, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2 }}>
             <ColumnHeader count={tasks.length} type={type} />
-            <Box display="flex" flexDirection="column" gap={2}>
+            <Box display="flex" flexDirection="column" gap={1.5}>
                 {tasks.map((task) => (
                     <TaskCard key={task.id} task={task} />
                 ))}
