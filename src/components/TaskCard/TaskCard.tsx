@@ -1,5 +1,6 @@
 import type { Priority, Task } from "../../types"
 import { PRIORITY_CHIP_COLORS } from "../../types"
+import { fontFamilyMono } from "../../theme"
 import { Card, CardContent, Chip, Typography } from "@mui/material"
 
 /**
@@ -17,13 +18,12 @@ function TaskCard({ task }: { task: Task }) {
     return (
         <Card>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Typography variant="h6" component="h3" fontSize={20} fontWeight="semibold">{task.title}</Typography>
+                <Typography variant="h6" component="h3" fontSize={18} fontWeight="semibold" sx={{ fontFamily: fontFamilyMono }}>{task.title}</Typography>
                 <Typography variant="body1" component="p" lineHeight={1.3} color="#5F6573">{task.description}</Typography>
                 <Chip label={priorityLabel} sx={{
-                    backgroundColor: chipBgColor, color: priorityColor, py: 0.5, mt: 1
-                    , "& .MuiChip-label": {
-                        px: 1
-                    }
+                    fontFamily: fontFamilyMono,
+                    backgroundColor: chipBgColor, color: priorityColor, py: 0.5, mt: 1,
+                    "& .MuiChip-label": { px: 1 },
                 }} />
             </CardContent>
         </Card>

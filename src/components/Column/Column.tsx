@@ -1,5 +1,5 @@
 import { Box, Button, Paper, Typography } from "@mui/material"
-import { darkGray, lightGray } from "../../theme"
+import { darkGray, fontFamilyMono, lightGray } from "../../theme"
 import { AddOutlined } from "@mui/icons-material"
 import type { ColumnType, Task } from "../../types"
 import { COLUMNS_CONFIG } from "../../types"
@@ -18,7 +18,7 @@ function ColumnHeader({ count, type }: { count: number, type: ColumnType }) {
     return (
         <Box display="flex" alignItems="center" gap={1}>
             <Box bgcolor={columnColors[type as ColumnType]} width={10} height={10} borderRadius="50%" />
-            <Typography color={darkGray} variant="h6" component="h2" fontSize={15} fontWeight="bold" textTransform="uppercase">{label}</Typography>
+            <Typography color={darkGray} variant="h6" component="h2" fontSize={15} fontWeight="bold" textTransform="uppercase" sx={{ fontFamily: fontFamilyMono }}>{label}</Typography>
             <Box display="flex" alignItems="center" gap={1} bgcolor="#E8E9ED" color={darkGray} borderRadius="50%" p={1} fontSize={12} fontWeight="bold"
                 sx={{ aspectRatio: 1, width: 20, height: 20 }}
             >{count}</Box>

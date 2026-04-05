@@ -11,6 +11,8 @@ export const columnColors: Record<ColumnType, string> = {
 export const lightGray = "#EDF0F3";
 export const darkGray = "#4F576A";
 
+export const fontFamilyMono = '"IBM Plex Mono", ui-monospace, monospace';
+
 const theme = createTheme({
   palette: {
     primary: { main: "#3E66D7" },
@@ -50,7 +52,7 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          fontWeight: 700,
+          fontWeight: 500,
           fontSize: "0.725rem",
           letterSpacing: "0.05em",
           borderRadius: 5,
