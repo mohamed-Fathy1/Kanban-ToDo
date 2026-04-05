@@ -1,13 +1,15 @@
-export type Task = {
-    id: number
-    title: string
-    description: string
-    column: string
-}
+import { Box } from "@mui/material"
+import type { Task } from "../../types"
+import { COLUMNS } from "../../types"
+import Column from "../Column"
 
 function Board({ tasks }: { tasks: Task[] }) {
     return (
-        <div>Board ({tasks.length})</div>
+        <Box display="flex" gap={2} px={8} py={4} sx={{ overflowX: "auto" }}>
+            {COLUMNS.map((column) => (
+                <Column />
+            ))}
+        </Box>
     )
 }
 

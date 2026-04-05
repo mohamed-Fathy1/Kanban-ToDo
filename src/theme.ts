@@ -8,6 +8,7 @@ export const columnColors = {
 } as const;
 
 export const lightGray = "#EDF0F3";
+export const darkGray = "#4F576A";
 
 const theme = createTheme({
   palette: {
