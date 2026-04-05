@@ -1,13 +1,40 @@
+import { useState, type MouseEvent } from "react"
 import type { Task } from "../../types"
 import { PRIORITY_CHIP_COLORS } from "../../types"
 import { fontFamilyMono } from "../../theme"
-import { Card, CardContent, Chip, Typography } from "@mui/material"
+import { Box, Card, CardContent, Chip, IconButton, ListItemIcon, ListItemText, MenuItem, Popover, Typography } from "@mui/material"
+import { DeleteOutline, EditOutlined, MoreVert } from "@mui/icons-material"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { useDeleteTask } from "../../hooks/useTasks"
 
-function TaskCard({ task }: { task: Task }) {
+const stopPropagation = (e: React.SyntheticEvent) => e.stopPropagation()
+
+function TaskCard({ task, onEdit }: { task: Task; onEdit?: (task: Task) => void }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id })
     const color = PRIORITY_CHIP_COLORS[task.priority]
+    const deleteTask = useDeleteTask()
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+    const menuOpen = Boolean(anchorEl)
+
+    function openMenu(e: MouseEvent<HTMLElement>) {
+        e.stopPropagation()
+        setAnchorEl(e.currentTarget)
+    }
+
+    function closeMenu() {
+        setAnchorEl(null)
+    }
+
+    function handleEdit() {
+        closeMenu()
+        onEdit?.(task)
+    }
+
+    function handleDelete() {
+        closeMenu()
+        deleteTask.mutate(task.id)
+    }
 
     return (
         <Card
@@ -15,8 +42,40 @@ function TaskCard({ task }: { task: Task }) {
             style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1, cursor: "grab" }}
             {...attributes}
             {...listeners}
-            sx={isDragging ? { border: "1px dashed", borderColor: "divider", boxShadow: "none" } : undefined}
+            sx={{
+                flexShrink: 0,
+                position: "relative",
+                "&:hover .task-menu-btn": { opacity: 1 },
+                ...(isDragging ? { border: "1px dashed", borderColor: "divider", boxShadow: "none" } : undefined),
+            }}
         >
+            <Box
+                className="task-menu-btn"
+                sx={{ position: "absolute", top: 6, right: 6, opacity: menuOpen ? 1 : 0, transition: "opacity 150ms ease" }}
+            >
+                <IconButton size="small" onPointerDown={stopPropagation} onClick={openMenu}>
+                    <MoreVert fontSize="small" />
+                </IconButton>
+            </Box>
+            <Popover
+                open={menuOpen}
+                anchorEl={anchorEl}
+                onClose={closeMenu}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                onPointerDown={stopPropagation}
+                onKeyDown={stopPropagation}
+                slotProps={{ paper: { sx: { borderRadius: 2, minWidth: 140, py: 0.5 } } }}
+            >
+                <MenuItem onClick={handleEdit}>
+                    <ListItemIcon><EditOutlined fontSize="small" /></ListItemIcon>
+                    <ListItemText>Edit</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+                    <ListItemIcon><DeleteOutline fontSize="small" sx={{ color: "error.main" }} /></ListItemIcon>
+                    <ListItemText>Delete</ListItemText>
+                </MenuItem>
+            </Popover>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 <Typography variant="h6" component="h3" fontSize={18} fontWeight={600} sx={{ fontFamily: fontFamilyMono }}>
                     {task.title}

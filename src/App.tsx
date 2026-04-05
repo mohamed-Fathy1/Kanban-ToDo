@@ -16,7 +16,7 @@ function App() {
         <Container
           maxWidth={false}
           disableGutters
-          sx={{ bgcolor: "background.paper", minHeight: "100vh" }}
+          sx={{ bgcolor: "background.paper", height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}
         >
           <Header />
           <Board />

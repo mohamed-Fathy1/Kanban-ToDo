@@ -1,13 +1,25 @@
 import { API_URL } from "./config"
-import type { Task } from "../types"
+import type { ColumnType, Task } from "../types"
 
 export type CreateTaskPayload = Omit<Task, "id">
 
+export type TasksPage = {
+    tasks: Task[]
+    total: number
+    page: number
+    limit: number
+}
+
 export const tasksApi = {
-    getAll: async (): Promise<Task[]> => {
-        const res = await fetch(`${API_URL}/tasks`)
+    getByColumn: async (column: ColumnType, page = 1, limit = 10): Promise<TasksPage> => {
+        const params = new URLSearchParams({ column, _page: String(page), _per_page: String(limit) })
+        const res = await fetch(`${API_URL}/tasks?${params}`)
         if (!res.ok) throw new Error("Failed to fetch tasks")
-        return res.json()
+        const data = await res.json()
+        if (Array.isArray(data)) {
+            return { tasks: data, total: data.length, page, limit }
+        }
+        return { tasks: data.data, total: data.items, page, limit }
     },
 
     create: async (task: CreateTaskPayload): Promise<Task> => {

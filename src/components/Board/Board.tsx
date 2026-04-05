@@ -1,45 +1,49 @@
-import { Box, CircularProgress, Typography } from "@mui/material"
+import { Box } from "@mui/material"
 import type { ColumnType, Task } from "../../types"
 import { COLUMNS } from "../../types"
 import Column from "../Column"
-import useStore from "../../store"
-import { useMemo, useState } from "react"
-import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, closestCorners } from "@dnd-kit/core"
-import { useQueryClient } from "@tanstack/react-query"
-import { useTasks, useUpdateTask } from "../../hooks/useTasks"
+import { useState } from "react"
+import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, closestCenter } from "@dnd-kit/core"
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query"
+import { useUpdateTask } from "../../hooks/useTasks"
+import type { TasksPage } from "../../api/tasks"
 import TaskCard from "../TaskCard"
 
 function Board() {
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [overId, setOverId] = useState<string | number | null>(null)
-    const { data: tasks = [], isLoading, error } = useTasks()
-    const searchQuery = useStore((s) => s.searchQuery)
     const updateTask = useUpdateTask()
     const qc = useQueryClient()
 
-    const filteredTasks = useMemo(() => {
-        const q = searchQuery.trim().toLowerCase()
-        if (!q) return tasks
-        return tasks.filter((t) =>
-            t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
-        )
-    }, [tasks, searchQuery])
+    function getColumnTasks(column: ColumnType): Task[] {
+        const data = qc.getQueryData<InfiniteData<TasksPage, number>>(["tasks", column])
+        return data?.pages.flatMap(p => p.tasks) ?? []
+    }
 
-    function reorderInCache(taskId: number, column: ColumnType, index: number) {
-        qc.setQueryData<Task[]>(["tasks"], (old) => {
-            if (!old) return []
-            const task = old.find((t) => t.id === taskId)
-            if (!task) return old
-            const rest = old.filter((t) => t.id !== taskId)
-            const col = rest.filter((t) => t.column === column)
-            const others = rest.filter((t) => t.column !== column)
-            col.splice(index, 0, { ...task, column })
-            return [...others, ...col]
+    function findTask(id: number | string): Task | undefined {
+        for (const col of COLUMNS) {
+            const task = getColumnTasks(col).find(t => t.id === Number(id))
+            if (task) return task
+        }
+    }
+
+    function updateColumnCache(column: ColumnType, tasks: Task[], totalDelta = 0) {
+        qc.setQueryData<InfiniteData<TasksPage, number>>(["tasks", column], (old) => {
+            if (!old) return old
+            const limit = old.pages[0]?.limit ?? 10
+            return {
+                ...old,
+                pages: old.pages.map((page, i) => ({
+                    ...page,
+                    tasks: i === old.pages.length - 1 ? tasks.slice(i * limit) : tasks.slice(i * limit, (i + 1) * limit),
+                    total: page.total + totalDelta,
+                })),
+            }
         })
     }
 
     function onDragStart({ active }: DragStartEvent) {
-        setActiveTask(tasks.find((t) => t.id === active.id) ?? null)
+        setActiveTask(findTask(active.id) ?? null)
     }
 
     function onDragOver({ over }: DragOverEvent) {
@@ -52,7 +56,7 @@ function Board() {
         if (!over) return
 
         const id = active.id as number
-        const task = tasks.find((t) => t.id === id)
+        const task = findTask(id)
         if (!task) return
 
         const overId = String(over.id)
@@ -62,33 +66,46 @@ function Board() {
         if (isColumnDrop || isDropEnd) {
             const targetCol = (isDropEnd ? overId.replace("drop-end:", "") : overId) as ColumnType
             if (task.column !== targetCol) {
-                const endIdx = tasks.filter((t) => t.column === targetCol).length
-                reorderInCache(id, targetCol, endIdx)
+                const sourceTasks = getColumnTasks(task.column).filter(t => t.id !== id)
+                updateColumnCache(task.column, sourceTasks, -1)
+
+                const targetTasks = getColumnTasks(targetCol)
+                targetTasks.push({ ...task, column: targetCol })
+                updateColumnCache(targetCol, targetTasks, 1)
+
                 updateTask.mutate({ id, column: targetCol })
             }
             return
         }
 
-        const target = tasks.find((t) => t.id === over.id)
+        const target = findTask(over.id)
         if (!target) return
 
-        const colTasks = tasks.filter((t) => t.column === target.column)
-        const overIdx = colTasks.findIndex((t) => t.id === over.id)
-        reorderInCache(id, target.column, overIdx)
-
         if (task.column !== target.column) {
+            const sourceTasks = getColumnTasks(task.column).filter(t => t.id !== id)
+            updateColumnCache(task.column, sourceTasks, -1)
+
+            const targetTasks = getColumnTasks(target.column)
+            const overIdx = targetTasks.findIndex(t => t.id === Number(over.id))
+            targetTasks.splice(overIdx, 0, { ...task, column: target.column })
+            updateColumnCache(target.column, targetTasks, 1)
+
             updateTask.mutate({ id, column: target.column })
+        } else if (task.id !== target.id) {
+            const tasks = getColumnTasks(task.column)
+            const fromIdx = tasks.findIndex(t => t.id === id)
+            const toIdx = tasks.findIndex(t => t.id === Number(over.id))
+            const [moved] = tasks.splice(fromIdx, 1)
+            tasks.splice(toIdx, 0, moved)
+            updateColumnCache(task.column, tasks)
         }
     }
 
-    if (isLoading) return <Box display="flex" justifyContent="center" py={8}><CircularProgress /></Box>
-    if (error) return <Typography color="error" textAlign="center" py={8}>Failed to load tasks</Typography>
-
     return (
-        <DndContext onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} collisionDetection={closestCorners}>
-            <Box display="flex" gap={2} px={8} py={4} sx={{ overflowX: "auto", minHeight: "calc(100vh - 100px)" }}>
+        <DndContext onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} collisionDetection={closestCenter}>
+            <Box display="flex" gap={2} px={8} py={4} sx={{ flex: 1, minHeight: 0, overflowX: "auto" }}>
                 {COLUMNS.map((col) => (
-                    <Column key={col} type={col} tasks={filteredTasks.filter((t) => t.column === col)} activeTask={activeTask} overId={overId} />
+                    <Column key={col} type={col} activeTask={activeTask} overId={overId} />
                 ))}
             </Box>
             <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
