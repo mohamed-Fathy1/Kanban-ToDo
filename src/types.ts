@@ -11,19 +11,26 @@ export interface Task {
   priority: Priority;
 }
 
-export interface ColumnConfig {
-  type: ColumnType;
-  label: string;
-  color: string;
-}
+export const COLUMNS: ColumnType[] = ["backlog", "in_progress", "review", "done"];
 
-export const COLUMNS: ColumnConfig[] = [
-  { type: "backlog", label: "To Do", color: columnColors.backlog },
-  {
-    type: "in_progress",
+export const COLUMNS_CONFIG: Record<
+  ColumnType,
+  { label: string; color: string }
+> = {
+  backlog: {
+    label: "To Do",
+    color: columnColors.backlog,
+  },
+  in_progress: {
     label: "In Progress",
     color: columnColors.in_progress,
   },
-  { type: "review", label: "In Review", color: columnColors.review },
-  { type: "done", label: "Done", color: columnColors.done },
-];
+  review: {
+    label: "In Review",
+    color: columnColors.review,
+  },
+  done: {
+    label: "Done",
+    color: columnColors.done,
+  },
+} as const;

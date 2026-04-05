@@ -3,6 +3,7 @@ import { Container, CssBaseline, ThemeProvider } from '@mui/material'
 import theme from './theme'
 import { Board } from './components/Board'
 import { Header } from './components/Header'
+import type { Task } from './types'
 
 
 const tasks = [
@@ -33,7 +34,7 @@ function App() {
         sx={{ bgcolor: "background.paper", minHeight: "100vh" }}
       >
         <Header />
-        <Board tasks={tasks} />
+        <Board tasks={tasks as Task[]} />
       </Container>
     </ThemeProvider>
   )
