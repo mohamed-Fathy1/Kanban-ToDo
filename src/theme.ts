@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material/styles";
+import type { ColumnType } from "./types";
 
-export const columnColors = {
+export const columnColors: Record<ColumnType, string> = {
   backlog: "#3E66D7",
   in_progress: "#DD882D",
   review: "#904ABF",
@@ -13,9 +14,6 @@ export const darkGray = "#4F576A";
 const theme = createTheme({
   palette: {
     primary: { main: "#3E66D7" },
-    error: { main: "#CC4343" },
-    warning: { main: "#DD882D" },
-    success: { main: "#469A76" },
     background: { default: "#F5F6F8", paper: "#FFFFFF" },
     divider: "#E8E9ED",
     text: { primary: "#1A1D23", secondary: "#6B6F7B" },
@@ -53,8 +51,13 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           fontWeight: 700,
-          fontSize: "0.625rem",
+          fontSize: "0.725rem",
           letterSpacing: "0.05em",
+          borderRadius: 5,
+          textTransform: "uppercase",
+          width: "fit-content",
+          height: "fit-content",
+          p: 3,
         },
       },
     },

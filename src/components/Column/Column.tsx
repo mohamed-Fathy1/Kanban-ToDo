@@ -4,7 +4,15 @@ import { AddOutlined } from "@mui/icons-material"
 import type { ColumnType, Task } from "../../types"
 import { COLUMNS_CONFIG } from "../../types"
 import { columnColors } from "../../theme"
+import TaskCard from "../TaskCard"
 
+/**
+ * Column header
+ * @description Header for the column
+ * @param {number} count - Number of tasks in the column
+ * @param {ColumnType} type - Type of the column
+ * @returns {React.ReactNode}
+ */
 function ColumnHeader({ count, type }: { count: number, type: ColumnType }) {
     const { label } = COLUMNS_CONFIG[type]
     return (
@@ -18,21 +26,35 @@ function ColumnHeader({ count, type }: { count: number, type: ColumnType }) {
     )
 }
 
+/**
+ * Add task button
+ * @description Button to add a task to the column
+ * @returns {React.ReactNode}
+ */
 function AddTaskButton() {
     return (
         <Button variant="outlined" startIcon={<AddOutlined />}
-            sx={{ width: "100%", justifyContent: "center", color: "#8E939D", borderColor: "#8E939D", borderStyle: "dashed", py: 1 }}
+            sx={{ width: "100%", justifyContent: "center", color: "#7C818D", borderColor: "#7C818D", borderStyle: "dashed", py: 1 }}
         >Add Task</Button>
     )
 }
 
+/**
+ * Column
+ * @description Column component
+ * @param {ColumnType} type - Type of the column
+ * @param {Task[]} tasks - Tasks in the column
+ * @returns {React.ReactNode}
+ */
 function Column({ type, tasks }: { type: ColumnType, tasks: Task[] }) {
 
     return (
-        <Paper sx={{ width: 350, py: 2, px: 3, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2 }}>
+        <Paper sx={{ width: 380, p: 2, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2 }}>
             <ColumnHeader count={tasks.length} type={type} />
             <Box display="flex" flexDirection="column" gap={2}>
-                {/* <Task /> */}
+                {tasks.map((task) => (
+                    <TaskCard key={task.id} task={task} />
+                ))}
             </Box>
             <AddTaskButton />
         </Paper>
