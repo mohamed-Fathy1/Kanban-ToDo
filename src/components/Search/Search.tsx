@@ -1,10 +1,10 @@
 import { InputAdornment, TextField } from "@mui/material"
 import { SearchOutlined } from "@mui/icons-material"
-import useTasksStore from "../../store"
+import useStore from "../../store"
 
 function Search() {
-    const setSearchQuery = useTasksStore((state) => state.setSearchQuery)
-    const searchQuery = useTasksStore((state) => state.searchQuery)
+    const setSearchQuery = useStore((s) => s.setSearchQuery)
+    const searchQuery = useStore((s) => s.searchQuery)
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)
 
     return (

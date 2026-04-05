@@ -1,18 +1,21 @@
-import { Box } from "@mui/material"
+import { Box, CircularProgress, Typography } from "@mui/material"
 import type { ColumnType, Task } from "../../types"
 import { COLUMNS } from "../../types"
 import Column from "../Column"
-import useTasksStore from "../../store"
+import useStore from "../../store"
 import { useMemo, useState } from "react"
 import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, closestCorners } from "@dnd-kit/core"
+import { useQueryClient } from "@tanstack/react-query"
+import { useTasks, useUpdateTask } from "../../hooks/useTasks"
 import TaskCard from "../TaskCard"
 
 function Board() {
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [overId, setOverId] = useState<string | number | null>(null)
-    const tasks = useTasksStore((s) => s.tasks)
-    const searchQuery = useTasksStore((s) => s.searchQuery)
-    const reorderTask = useTasksStore((s) => s.reorderTask)
+    const { data: tasks = [], isLoading, error } = useTasks()
+    const searchQuery = useStore((s) => s.searchQuery)
+    const updateTask = useUpdateTask()
+    const qc = useQueryClient()
 
     const filteredTasks = useMemo(() => {
         const q = searchQuery.trim().toLowerCase()
@@ -21,6 +24,19 @@ function Board() {
             t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)
         )
     }, [tasks, searchQuery])
+
+    function reorderInCache(taskId: number, column: ColumnType, index: number) {
+        qc.setQueryData<Task[]>(["tasks"], (old) => {
+            if (!old) return []
+            const task = old.find((t) => t.id === taskId)
+            if (!task) return old
+            const rest = old.filter((t) => t.id !== taskId)
+            const col = rest.filter((t) => t.column === column)
+            const others = rest.filter((t) => t.column !== column)
+            col.splice(index, 0, { ...task, column })
+            return [...others, ...col]
+        })
+    }
 
     function onDragStart({ active }: DragStartEvent) {
         setActiveTask(tasks.find((t) => t.id === active.id) ?? null)
@@ -47,7 +63,8 @@ function Board() {
             const targetCol = (isDropEnd ? overId.replace("drop-end:", "") : overId) as ColumnType
             if (task.column !== targetCol) {
                 const endIdx = tasks.filter((t) => t.column === targetCol).length
-                reorderTask(id, targetCol, endIdx)
+                reorderInCache(id, targetCol, endIdx)
+                updateTask.mutate({ id, column: targetCol })
             }
             return
         }
@@ -57,8 +74,15 @@ function Board() {
 
         const colTasks = tasks.filter((t) => t.column === target.column)
         const overIdx = colTasks.findIndex((t) => t.id === over.id)
-        reorderTask(id, target.column, overIdx)
+        reorderInCache(id, target.column, overIdx)
+
+        if (task.column !== target.column) {
+            updateTask.mutate({ id, column: target.column })
+        }
     }
+
+    if (isLoading) return <Box display="flex" justifyContent="center" py={8}><CircularProgress /></Box>
+    if (error) return <Typography color="error" textAlign="center" py={8}>Failed to load tasks</Typography>
 
     return (
         <DndContext onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} collisionDetection={closestCorners}>
