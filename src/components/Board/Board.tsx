@@ -50,20 +50,13 @@ function Board() {
         setOverId(over?.id ?? null)
     }
 
-    function withPositions(tasks: Task[]): Task[] {
-        return tasks.map((t, i) => ({ ...t, position: i }))
-    }
-
-    function positionDiff(oldTasks: Task[], newTasks: Task[], movedId?: number): Array<Partial<Task> & { id: number }> {
-        const updates: Array<Partial<Task> & { id: number }> = []
-        for (const t of newTasks) {
-            if (t.id === movedId) continue
-            const old = oldTasks.find(ot => ot.id === t.id)
-            if (!old || old.position !== t.position) {
-                updates.push({ id: t.id, position: t.position })
-            }
-        }
-        return updates
+    function computeInsertPosition(tasks: Task[], insertIndex: number): number {
+        const prev = insertIndex > 0 ? tasks[insertIndex - 1] : null
+        const next = insertIndex < tasks.length - 1 ? tasks[insertIndex + 1] : null
+        if (prev && next) return (prev.position + next.position) / 2
+        if (prev) return prev.position + 1
+        if (next) return next.position - 1
+        return 0
     }
 
     function onDragEnd({ active, over }: DragEndEvent) {
@@ -82,19 +75,16 @@ function Board() {
         if (isColumnDrop || isDropEnd) {
             const targetCol = (isDropEnd ? overId.replace("drop-end:", "") : overId) as ColumnType
             if (task.column !== targetCol) {
-                const oldSourceTasks = getColumnTasks(task.column)
-                const oldTargetTasks = getColumnTasks(targetCol)
+                const sourceTasks = getColumnTasks(task.column)
+                const targetTasks = getColumnTasks(targetCol)
 
-                const newSourceTasks = withPositions(oldSourceTasks.filter(t => t.id !== id))
-                const newTargetTasks = withPositions([...oldTargetTasks, { ...task, column: targetCol }])
+                const lastPos = targetTasks.length > 0 ? targetTasks[targetTasks.length - 1].position + 1 : 0
+                const movedTask = { ...task, column: targetCol, position: lastPos }
 
-                updateColumnCache(task.column, newSourceTasks, -1)
-                updateColumnCache(targetCol, newTargetTasks, 1)
+                updateColumnCache(task.column, sourceTasks.filter(t => t.id !== id), -1)
+                updateColumnCache(targetCol, [...targetTasks, movedTask], 1)
 
-                dragMoveTask.mutate([
-                    { id, column: targetCol, position: newTargetTasks.length - 1 },
-                    ...positionDiff(oldSourceTasks, newSourceTasks, id),
-                ])
+                dragMoveTask.mutate([{ id, column: targetCol, position: lastPos }])
             }
             return
         }
@@ -103,35 +93,33 @@ function Board() {
         if (!target) return
 
         if (task.column !== target.column) {
-            const oldSourceTasks = getColumnTasks(task.column)
-            const oldTargetTasks = getColumnTasks(target.column)
+            const sourceTasks = getColumnTasks(task.column)
+            const targetTasks = getColumnTasks(target.column)
+            const overIdx = targetTasks.findIndex(t => t.id === Number(over.id))
 
-            const newSourceTasks = withPositions(oldSourceTasks.filter(t => t.id !== id))
-            const overIdx = oldTargetTasks.findIndex(t => t.id === Number(over.id))
-            const newTargetArr = [...oldTargetTasks]
+            const newTargetArr = [...targetTasks]
             newTargetArr.splice(overIdx, 0, { ...task, column: target.column })
-            const newTargetTasks = withPositions(newTargetArr)
+            const newPos = computeInsertPosition(newTargetArr, overIdx)
+            newTargetArr[overIdx] = { ...task, column: target.column, position: newPos }
 
-            updateColumnCache(task.column, newSourceTasks, -1)
-            updateColumnCache(target.column, newTargetTasks, 1)
+            updateColumnCache(task.column, sourceTasks.filter(t => t.id !== id), -1)
+            updateColumnCache(target.column, newTargetArr, 1)
 
-            dragMoveTask.mutate([
-                { id, column: target.column, position: overIdx },
-                ...positionDiff(oldTargetTasks, newTargetTasks, id),
-                ...positionDiff(oldSourceTasks, newSourceTasks, id),
-            ])
+            dragMoveTask.mutate([{ id, column: target.column, position: newPos }])
         } else if (task.id !== target.id) {
-            const oldTasks = getColumnTasks(task.column)
-            const fromIdx = oldTasks.findIndex(t => t.id === id)
-            const toIdx = oldTasks.findIndex(t => t.id === Number(over.id))
-            const reordered = [...oldTasks]
+            const tasks = getColumnTasks(task.column)
+            const fromIdx = tasks.findIndex(t => t.id === id)
+            const toIdx = tasks.findIndex(t => t.id === Number(over.id))
+
+            const reordered = [...tasks]
             const [moved] = reordered.splice(fromIdx, 1)
             reordered.splice(toIdx, 0, moved)
-            const positioned = withPositions(reordered)
+            const newPos = computeInsertPosition(reordered, toIdx)
+            reordered[toIdx] = { ...moved, position: newPos }
 
-            updateColumnCache(task.column, positioned)
+            updateColumnCache(task.column, reordered)
 
-            dragMoveTask.mutate(positionDiff(oldTasks, positioned))
+            dragMoveTask.mutate([{ id, position: newPos }])
         }
     }
 

@@ -36,7 +36,9 @@ export function useDragMoveTask() {
     return useMutation({
         mutationFn: (updates: Array<Partial<Task> & { id: number }>) =>
             tasksApi.bulkUpdate(updates),
-        onError: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
+        onSettled: () => {
+            setTimeout(() => qc.invalidateQueries({ queryKey: ["tasks"] }), 300)
+        },
     })
 }
 

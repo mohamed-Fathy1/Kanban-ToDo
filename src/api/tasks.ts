@@ -17,10 +17,14 @@ export const tasksApi = {
         const res = await fetch(`${API_URL}/tasks?${params}`)
         if (!res.ok) throw new Error("Failed to fetch tasks")
         const data = await res.json()
+        const normalize = (tasks: Task[]) =>
+            tasks.map(t => ({ ...t, position: typeof t.position === 'number' ? t.position : Infinity }))
         if (Array.isArray(data)) {
-            return { tasks: data, total: data.length, page, limit }
+            const totalHeader = res.headers.get("X-Total-Count")
+            const total = totalHeader ? parseInt(totalHeader, 10) : data.length
+            return { tasks: normalize(data), total, page, limit }
         }
-        return { tasks: data.data, total: data.items, page, limit }
+        return { tasks: normalize(data.data), total: data.items, page, limit }
     },
 
     create: async (task: CreateTaskPayload): Promise<Task> => {
@@ -49,12 +53,13 @@ export const tasksApi = {
     },
 
     bulkUpdate: async (updates: Array<{ id: number } & Partial<Task>>): Promise<void> => {
-        await Promise.all(updates.map(({ id, ...data }) =>
-            fetch(`${API_URL}/tasks/${id}`, {
+        await Promise.all(updates.map(async ({ id, ...data }) => {
+            const res = await fetch(`${API_URL}/tasks/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             })
-        ))
+            if (!res.ok) throw new Error(`Failed to update task ${id}`)
+        }))
     },
 }

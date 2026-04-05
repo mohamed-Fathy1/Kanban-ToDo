@@ -43,8 +43,9 @@ function TaskDialog({ open, onClose, task, defaultColumn = "backlog" }: Props) {
         if (isEdit && task) {
             updateTask.mutate({ id: task.id, title, description, column, priority }, { onSuccess: onClose })
         } else {
-            const nextPosition = columnData?.pages[0]?.total ?? 0
-            createTask.mutate({ title, description, column, priority, position: nextPosition }, { onSuccess: onClose })
+            const allTasks = columnData?.pages.flatMap(p => p.tasks) ?? []
+            const maxPos = allTasks.length > 0 ? Math.max(...allTasks.map(t => t.position ?? 0)) : -1
+            createTask.mutate({ title, description, column, priority, position: maxPos + 1 }, { onSuccess: onClose })
         }
     }
 
