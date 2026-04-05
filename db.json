@@ -5,84 +5,96 @@
       "title": "API integration",
       "description": "Connect frontend to REST API endpoints",
       "column": "backlog",
-      "priority": "high"
+      "priority": "high",
+      "position": 0
     },
     {
       "id": 2,
       "title": "Unit tests",
       "description": "Write tests for utility functions and hooks",
       "column": "backlog",
-      "priority": "low"
+      "priority": "low",
+      "position": 1
     },
     {
       "id": 3,
       "title": "Performance audit",
       "description": "Lighthouse scores and bundle analysis",
       "column": "backlog",
-      "priority": "low"
+      "priority": "low",
+      "position": 2
     },
     {
       "id": 4,
       "title": "Authentication flow",
       "description": "Implement login, signup, and password reset screens",
       "column": "in_progress",
-      "priority": "high"
+      "priority": "high",
+      "position": 0
     },
     {
       "id": 5,
       "title": "File upload component",
       "description": "Drag and drop file upload with preview",
       "column": "in_progress",
-      "priority": "medium"
+      "priority": "medium",
+      "position": 1
     },
     {
       "id": 6,
       "title": "Dark mode support",
       "description": "Add theme toggle and CSS variable switching",
       "column": "review",
-      "priority": "medium"
+      "priority": "medium",
+      "position": 0
     },
     {
       "id": 7,
       "title": "Dashboard layout",
       "description": "Build responsive sidebar and main content area",
       "column": "review",
-      "priority": "medium"
+      "priority": "medium",
+      "position": 1
     },
     {
       "id": 8,
       "title": "Design system tokens",
       "description": "Set up color palette, typography, and spacing scales",
       "column": "done",
-      "priority": "high"
+      "priority": "high",
+      "position": 0
     },
     {
       "id": 9,
       "title": "Notification system",
       "description": "Toast notifications and in-app alerts",
       "column": "backlog",
-      "priority": "high"
+      "priority": "high",
+      "position": 3
     },
     {
       "id": 10,
       "title": "User settings page",
       "description": "Profile editing, preferences, and account management",
       "column": "backlog",
-      "priority": "high"
+      "priority": "high",
+      "position": 4
     },
     {
       "id": 11,
       "title": "Error boundary setup",
       "description": "Global error handling with fallback UI",
       "column": "in_progress",
-      "priority": "medium"
+      "priority": "medium",
+      "position": 2
     },
     {
       "id": 12,
       "title": "CI/CD pipeline",
       "description": "GitHub Actions for testing and deployment",
       "column": "done",
-      "priority": "medium"
+      "priority": "medium",
+      "position": 1
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

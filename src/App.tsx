@@ -4,6 +4,8 @@ import { Board } from './components/Board'
 import { Header } from './components/Header'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './queryClient'
+import './bones/registry'
+
 
 function App() {
   return (

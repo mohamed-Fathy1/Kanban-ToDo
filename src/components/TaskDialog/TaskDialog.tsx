@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField } from "@mui/material"
 import { COLUMNS_CONFIG, type ColumnType, type Priority, type Task } from "../../types"
 import { fontFamilyMono } from "../../theme"
-import { useCreateTask, useUpdateTask } from "../../hooks/useTasks"
+import { useColumnTasks, useCreateTask, useUpdateTask } from "../../hooks/useTasks"
 
 const PRIORITIES: Priority[] = ["high", "medium", "low"]
 
@@ -16,6 +16,7 @@ type Props = {
 function TaskDialog({ open, onClose, task, defaultColumn = "backlog" }: Props) {
     const createTask = useCreateTask()
     const updateTask = useUpdateTask()
+    const { data: columnData } = useColumnTasks(defaultColumn)
     const isEdit = Boolean(task)
     const loading = createTask.isPending || updateTask.isPending
 
@@ -42,7 +43,8 @@ function TaskDialog({ open, onClose, task, defaultColumn = "backlog" }: Props) {
         if (isEdit && task) {
             updateTask.mutate({ id: task.id, title, description, column, priority }, { onSuccess: onClose })
         } else {
-            createTask.mutate({ title, description, column, priority }, { onSuccess: onClose })
+            const nextPosition = columnData?.pages[0]?.total ?? 0
+            createTask.mutate({ title, description, column, priority, position: nextPosition }, { onSuccess: onClose })
         }
     }
 

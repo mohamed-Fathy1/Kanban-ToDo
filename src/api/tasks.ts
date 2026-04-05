@@ -13,7 +13,7 @@ export type TasksPage = {
 
 export const tasksApi = {
     getByColumn: async (column: ColumnType, page = 1, limit = 10): Promise<TasksPage> => {
-        const params = new URLSearchParams({ column, _page: String(page), _per_page: String(limit) })
+        const params = new URLSearchParams({ column, _page: String(page), _per_page: String(limit), _sort: 'position' })
         const res = await fetch(`${API_URL}/tasks?${params}`)
         if (!res.ok) throw new Error("Failed to fetch tasks")
         const data = await res.json()
@@ -46,5 +46,15 @@ export const tasksApi = {
     delete: async (id: number): Promise<void> => {
         const res = await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" })
         if (!res.ok) throw new Error("Failed to delete task")
+    },
+
+    bulkUpdate: async (updates: Array<{ id: number } & Partial<Task>>): Promise<void> => {
+        await Promise.all(updates.map(({ id, ...data }) =>
+            fetch(`${API_URL}/tasks/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+        ))
     },
 }

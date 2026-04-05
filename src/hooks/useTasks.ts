@@ -31,6 +31,15 @@ export function useUpdateTask() {
     })
 }
 
+export function useDragMoveTask() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (updates: Array<Partial<Task> & { id: number }>) =>
+            tasksApi.bulkUpdate(updates),
+        onError: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
+    })
+}
+
 export function useDeleteTask() {
     const qc = useQueryClient()
     return useMutation({

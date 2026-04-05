@@ -1,45 +1,16 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react"
-import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material"
-import { darkGray, fontFamilyMono, lightGray } from "../../theme"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Box, Button, CircularProgress, Paper } from "@mui/material"
+import { lightGray } from "../../theme"
 import { AddOutlined } from "@mui/icons-material"
-import { COLUMN_COLORS, COLUMNS_CONFIG, type ColumnType, type Task } from "../../types"
+import { COLUMN_COLORS, type ColumnType, type Task } from "../../types"
 import { TaskCard } from "../TaskCard"
-import { useDroppable } from "@dnd-kit/core"
-
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useColumnTasks } from "../../hooks/useTasks"
 import useStore from "../../store"
 import { TaskDialog } from "../TaskDialog"
-
-function ColumnHeader({ count, type }: { count: number; type: ColumnType }) {
-    const { label } = COLUMNS_CONFIG[type]
-    return (
-        <Box display="flex" alignItems="center" gap={1}>
-            <Box bgcolor={COLUMN_COLORS[type]} width={10} height={10} borderRadius="50%" />
-            <Typography color={darkGray} variant="h6" component="h2" fontSize={15} fontWeight="bold" textTransform="uppercase" sx={{ fontFamily: fontFamilyMono }}>
-                {label}
-            </Typography>
-            <Box display="flex" alignItems="center" justifyContent="center" bgcolor="#E8E9ED" color={darkGray} borderRadius="50%" fontSize={12} fontWeight="bold" sx={{ width: 20, height: 20 }}>
-                {count}
-            </Box>
-        </Box>
-    )
-}
-
-function DropIndicator({ color }: { color: string }) {
-    return <Box sx={{ height: 3, bgcolor: color, borderRadius: 1, flexShrink: 0 }} />
-}
-
-function DropZone({ color, active, type }: { color: string; active?: boolean; type: ColumnType }) {
-    const { setNodeRef } = useDroppable({ id: `drop-end:${type}` })
-    return (
-        <Box ref={setNodeRef} sx={{ border: "2px dashed", borderColor: color, borderRadius: 2.5, py: 3, display: "flex", alignItems: "center", justifyContent: "center", opacity: active ? 0.6 : 0.3, transition: "opacity 150ms ease" }}>
-            <Typography fontSize={13} fontWeight={600} color={color} sx={{ fontFamily: fontFamilyMono, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Drop here
-            </Typography>
-        </Box>
-    )
-}
+import TaskCardSkeleton from "../Skeleton/TaskCardSkeleton/TaskCardSkeleton"
+import ColumnHeader from "./ColumnHeader"
+import { DropIndicator, DropZone } from "../DndHelpers/DndHelpers"
 
 type ColumnProps = {
     type: ColumnType
@@ -50,9 +21,12 @@ type ColumnProps = {
 function Column({ type, activeTask, overId }: ColumnProps) {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useColumnTasks(type)
     const searchQuery = useStore((s) => s.searchQuery)
+
     const color = COLUMN_COLORS[type]
+
     const scrollRef = useRef<HTMLDivElement>(null)
     const sentinelRef = useRef<HTMLDivElement>(null)
+
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editingTask, setEditingTask] = useState<Task | null>(null)
 
@@ -67,6 +41,7 @@ function Column({ type, activeTask, overId }: ColumnProps) {
         )
     }, [allTasks, searchQuery])
 
+    // fetch next page when the sentinel is in view
     useEffect(() => {
         const sentinel = sentinelRef.current
         const container = scrollRef.current
@@ -80,6 +55,8 @@ function Column({ type, activeTask, overId }: ColumnProps) {
         return () => observer.disconnect()
     }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
+
+    // calculate is dragging
     const isDragging = activeTask !== null
     const dropEndId = `drop-end:${type}`
     const dropZoneActive = isDragging && (overId === type || overId === dropEndId)
@@ -87,27 +64,35 @@ function Column({ type, activeTask, overId }: ColumnProps) {
         ? tasks.find((t) => t.id === Number(overId) && t.id !== activeTask!.id)?.id ?? null
         : null
 
-    if (isLoading) {
-        return (
-            <Paper sx={{ width: 380, p: 2, bgcolor: lightGray, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 200 }}>
-                <CircularProgress size={24} />
-            </Paper>
-        )
-    }
+    // generate random tasks for skeleton
+    const getRandomTasks = useCallback(() => {
+        return Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, i) => i + 1) as number[]
+    }, [])
+    const randomTasks = useMemo(() => {
+        return getRandomTasks()
+    }, [getRandomTasks])
 
     return (
         <Paper sx={{ width: 380, minWidth: 380, p: 2, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2, minHeight: 0 }}>
             <ColumnHeader count={total} type={type} />
             <Box ref={scrollRef} display="flex" flexDirection="column" gap={1.5} sx={{ minHeight: 0, overflowY: "auto" }}>
-                <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-                    {tasks.map((t) => (
-                        <Fragment key={t.id}>
-                            {hoverTaskId === t.id && <DropIndicator color={color} />}
-                            <TaskCard task={t} onEdit={(task) => { setEditingTask(task); setDialogOpen(true) }} />
-                        </Fragment>
-                    ))}
-                </SortableContext>
-                {isDragging && <DropZone color={color} active={dropZoneActive} type={type} />}
+                {isLoading ? (
+                    <>
+                        {randomTasks.map((i: number) => (
+                            <TaskCardSkeleton key={i} />
+                        ))}
+                    </>
+                ) : (
+                    <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+                        {tasks.map((t) => (
+                            <Fragment key={t.id}>
+                                {hoverTaskId === t.id && <DropIndicator color={color} />}
+                                <TaskCard task={t} onEdit={(task) => { setEditingTask(task); setDialogOpen(true) }} />
+                            </Fragment>
+                        ))}
+                    </SortableContext>
+                )}
+                {isDragging && activeTask?.column !== type && <DropZone color={color} active={dropZoneActive} type={type} />}
                 <div ref={sentinelRef} />
                 {isFetchingNextPage && (
                     <Box display="flex" justifyContent="center" py={1}>

@@ -7,6 +7,7 @@ export interface Task {
   description: string
   column: ColumnType
   priority: Priority
+  position: number
 }
 
 export const COLUMNS: ColumnType[] = ["backlog", "in_progress", "review", "done"]
