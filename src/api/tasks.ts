@@ -1,5 +1,6 @@
-import { API_URL } from "./config"
 import type { ColumnType, Task } from "../types"
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 export type CreateTaskPayload = Omit<Task, "id">
 

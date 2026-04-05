@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField } from "@mui/material"
-import type { ColumnType, Priority, Task } from "../../types"
-import { COLUMNS_CONFIG } from "../../types"
+import { COLUMNS_CONFIG, type ColumnType, type Priority, type Task } from "../../types"
 import { fontFamilyMono } from "../../theme"
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks"
 
@@ -48,7 +47,7 @@ function TaskDialog({ open, onClose, task, defaultColumn = "backlog" }: Props) {
     }
 
     return (
-        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+        <Dialog open={open} onClose={loading ? undefined : onClose} maxWidth="xs" fullWidth slotProps={{ paper: { sx: { borderRadius: 3 } } }}>
             <form onSubmit={handleSubmit}>
                 <DialogTitle sx={{ fontFamily: fontFamilyMono, fontWeight: 600 }}>
                     {isEdit ? "Edit Task" : "Add Task"}

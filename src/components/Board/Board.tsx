@@ -1,13 +1,13 @@
 import { Box } from "@mui/material"
 import type { ColumnType, Task } from "../../types"
 import { COLUMNS } from "../../types"
-import Column from "../Column"
+import { Column } from "../Column"
 import { useState } from "react"
 import { DndContext, type DragEndEvent, type DragOverEvent, DragOverlay, type DragStartEvent, closestCenter } from "@dnd-kit/core"
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query"
 import { useUpdateTask } from "../../hooks/useTasks"
 import type { TasksPage } from "../../api/tasks"
-import TaskCard from "../TaskCard"
+import { TaskCard } from "../TaskCard"
 
 function Board() {
     const [activeTask, setActiveTask] = useState<Task | null>(null)

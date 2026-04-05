@@ -1,1 +1,1 @@
-export { default } from "./TaskDialog"
+export { default as TaskDialog } from "./TaskDialog"

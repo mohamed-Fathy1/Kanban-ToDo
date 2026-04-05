@@ -1,6 +1,5 @@
 import { useState, type MouseEvent } from "react"
-import type { Task } from "../../types"
-import { PRIORITY_CHIP_COLORS } from "../../types"
+import { PRIORITY_CHIP_COLORS, type Task } from "../../types"
 import { fontFamilyMono } from "../../theme"
 import { Box, Card, CardContent, Chip, IconButton, ListItemIcon, ListItemText, MenuItem, Popover, Typography } from "@mui/material"
 import { DeleteOutline, EditOutlined, MoreVert } from "@mui/icons-material"

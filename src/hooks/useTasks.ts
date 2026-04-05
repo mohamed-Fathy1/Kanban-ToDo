@@ -1,7 +1,6 @@
-import { useInfiniteQuery, useMutation, useQueryClient, type InfiniteData } from "@tanstack/react-query"
-import { tasksApi, type CreateTaskPayload, type TasksPage } from "../api/tasks"
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { tasksApi, type CreateTaskPayload } from "../api/tasks"
 import type { ColumnType, Task } from "../types"
-import { COLUMNS } from "../types"
 
 export function useColumnTasks(column: ColumnType) {
     return useInfiniteQuery({
@@ -28,43 +27,7 @@ export function useUpdateTask() {
     return useMutation({
         mutationFn: ({ id, ...updates }: Partial<Task> & { id: number }) =>
             tasksApi.update(id, updates),
-        onSuccess: (data) => {
-            for (const col of COLUMNS) {
-                qc.setQueryData<InfiniteData<TasksPage, number>>(["tasks", col], (old) => {
-                    if (!old) return old
-                    if (col === data.column) {
-                        const exists = old.pages.some(p => p.tasks.some(t => t.id === data.id))
-                        if (exists) {
-                            return {
-                                ...old,
-                                pages: old.pages.map(page => ({
-                                    ...page,
-                                    tasks: page.tasks.map(t => t.id === data.id ? data : t),
-                                })),
-                            }
-                        }
-                        const lastPage = old.pages[old.pages.length - 1]
-                        return {
-                            ...old,
-                            pages: [
-                                ...old.pages.slice(0, -1),
-                                { ...lastPage, tasks: [...lastPage.tasks, data], total: lastPage.total + 1 },
-                            ],
-                        }
-                    }
-                    const had = old.pages.some(p => p.tasks.some(t => t.id === data.id))
-                    if (!had) return old
-                    return {
-                        ...old,
-                        pages: old.pages.map(page => ({
-                            ...page,
-                            tasks: page.tasks.filter(t => t.id !== data.id),
-                            total: page.total - 1,
-                        })),
-                    }
-                })
-            }
-        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
     })
 }
 

@@ -1,22 +1,21 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react"
 import { Box, Button, CircularProgress, Paper, Typography } from "@mui/material"
-import { columnColors, darkGray, fontFamilyMono, lightGray } from "../../theme"
+import { darkGray, fontFamilyMono, lightGray } from "../../theme"
 import { AddOutlined } from "@mui/icons-material"
-import type { ColumnType, Task } from "../../types"
-import { COLUMNS_CONFIG } from "../../types"
-import TaskCard from "../TaskCard"
+import { COLUMN_COLORS, COLUMNS_CONFIG, type ColumnType, type Task } from "../../types"
+import { TaskCard } from "../TaskCard"
 import { useDroppable } from "@dnd-kit/core"
 
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useColumnTasks } from "../../hooks/useTasks"
 import useStore from "../../store"
-import TaskDialog from "../TaskDialog"
+import { TaskDialog } from "../TaskDialog"
 
 function ColumnHeader({ count, type }: { count: number; type: ColumnType }) {
     const { label } = COLUMNS_CONFIG[type]
     return (
         <Box display="flex" alignItems="center" gap={1}>
-            <Box bgcolor={columnColors[type]} width={10} height={10} borderRadius="50%" />
+            <Box bgcolor={COLUMN_COLORS[type]} width={10} height={10} borderRadius="50%" />
             <Typography color={darkGray} variant="h6" component="h2" fontSize={15} fontWeight="bold" textTransform="uppercase" sx={{ fontFamily: fontFamilyMono }}>
                 {label}
             </Typography>
@@ -51,7 +50,7 @@ type ColumnProps = {
 function Column({ type, activeTask, overId }: ColumnProps) {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useColumnTasks(type)
     const searchQuery = useStore((s) => s.searchQuery)
-    const color = columnColors[type]
+    const color = COLUMN_COLORS[type]
     const scrollRef = useRef<HTMLDivElement>(null)
     const sentinelRef = useRef<HTMLDivElement>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -82,7 +81,6 @@ function Column({ type, activeTask, overId }: ColumnProps) {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
     const isDragging = activeTask !== null
-    const crossColumn = isDragging && activeTask.column !== type
     const dropEndId = `drop-end:${type}`
     const dropZoneActive = isDragging && (overId === type || overId === dropEndId)
     const hoverTaskId = isDragging && overId != null && overId !== type && overId !== dropEndId
@@ -100,7 +98,7 @@ function Column({ type, activeTask, overId }: ColumnProps) {
     return (
         <Paper sx={{ width: 380, minWidth: 380, p: 2, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2, minHeight: 0 }}>
             <ColumnHeader count={total} type={type} />
-            <Box ref={scrollRef} display="flex" flexDirection="column" gap={1.5} sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+            <Box ref={scrollRef} display="flex" flexDirection="column" gap={1.5} sx={{ minHeight: 0, overflowY: "auto" }}>
                 <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
                     {tasks.map((t) => (
                         <Fragment key={t.id}>

@@ -1,12 +1,4 @@
 import { createTheme } from "@mui/material/styles";
-import type { ColumnType } from "./types";
-
-export const columnColors: Record<ColumnType, string> = {
-  backlog: "#3E66D7",
-  in_progress: "#DD882D",
-  review: "#904ABF",
-  done: "#469A76",
-} as const;
 
 export const lightGray = "#EDF0F3";
 export const darkGray = "#4F576A";
@@ -59,7 +51,6 @@ const theme = createTheme({
           textTransform: "uppercase",
           width: "fit-content",
           height: "fit-content",
-          p: 3,
         },
       },
     },
