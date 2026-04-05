@@ -1,5 +1,6 @@
-import { Box, Paper, Typography } from "@mui/material"
+import { Box, Button, Paper, Typography } from "@mui/material"
 import { columnColors, darkGray, lightGray } from "../../theme"
+import { AddOutlined } from "@mui/icons-material"
 
 function ColumnHeader({ label, count }: { label: string, count: number }) {
     return (
@@ -13,13 +14,22 @@ function ColumnHeader({ label, count }: { label: string, count: number }) {
     )
 }
 
+function AddTaskButton() {
+    return (
+        <Button variant="outlined" startIcon={<AddOutlined />}
+            sx={{ width: "100%", justifyContent: "center", color: "#8E939D", borderColor: "#8E939D", borderStyle: "dashed", py: 1 }}
+        >Add Task</Button>
+    )
+}
+
 function Column() {
     return (
-        <Paper sx={{ width: 350, height: "100%", py: 2, px: 3, bgcolor: lightGray }}>
+        <Paper sx={{ width: 350, py: 2, px: 3, bgcolor: lightGray, display: "flex", flexDirection: "column", gap: 2 }}>
             <ColumnHeader label="To Do" count={1} />
             <Box display="flex" flexDirection="column" gap={2}>
                 {/* <Task /> */}
             </Box>
+            <AddTaskButton />
         </Paper>
     )
 }
