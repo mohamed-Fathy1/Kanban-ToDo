@@ -95,6 +95,206 @@
       "column": "done",
       "priority": "medium",
       "position": 1
+    },
+    {
+      "id": 13,
+      "title": "Pagination component",
+      "description": "Reusable pagination with page size selector",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 5
+    },
+    {
+      "id": 14,
+      "title": "Form validation",
+      "description": "Client-side validation with error messages",
+      "column": "backlog",
+      "priority": "high",
+      "position": 6
+    },
+    {
+      "id": 15,
+      "title": "Breadcrumb navigation",
+      "description": "Dynamic breadcrumbs based on route hierarchy",
+      "column": "backlog",
+      "priority": "low",
+      "position": 7
+    },
+    {
+      "id": 16,
+      "title": "Image optimization",
+      "description": "Lazy loading and responsive image sizing",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 8
+    },
+    {
+      "id": 17,
+      "title": "Accessibility audit",
+      "description": "WCAG 2.1 compliance check and fixes",
+      "column": "backlog",
+      "priority": "high",
+      "position": 9
+    },
+    {
+      "id": 18,
+      "title": "Localization setup",
+      "description": "i18n framework and translation file structure",
+      "column": "backlog",
+      "priority": "low",
+      "position": 10
+    },
+    {
+      "id": 19,
+      "title": "Data export feature",
+      "description": "Export filtered data to CSV and PDF",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 11
+    },
+    {
+      "id": 20,
+      "title": "Keyboard shortcuts",
+      "description": "Add shortcuts for common actions and navigation",
+      "column": "backlog",
+      "priority": "low",
+      "position": 12
+    },
+    {
+      "id": 21,
+      "title": "WebSocket integration",
+      "description": "Real-time updates for collaborative editing",
+      "column": "backlog",
+      "priority": "high",
+      "position": 13
+    },
+    {
+      "id": 22,
+      "title": "Search autocomplete",
+      "description": "Debounced search with dropdown suggestions",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 14
+    },
+    {
+      "id": 23,
+      "title": "Role-based access control",
+      "description": "Permission system for admin and user roles",
+      "column": "backlog",
+      "priority": "high",
+      "position": 15
+    },
+    {
+      "id": 24,
+      "title": "Onboarding tour",
+      "description": "Step-by-step product walkthrough for new users",
+      "column": "backlog",
+      "priority": "high",
+      "position": 16
+    },
+    {
+      "id": 25,
+      "title": "Chart components",
+      "description": "Bar, line, and pie charts with Recharts",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 17
+    },
+    {
+      "id": 26,
+      "title": "Drag-and-drop file manager",
+      "description": "Tree view with drag reordering and folder nesting",
+      "column": "backlog",
+      "priority": "high",
+      "position": 18
+    },
+    {
+      "id": 27,
+      "title": "API rate limiting",
+      "description": "Throttle requests and show retry indicators",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 19
+    },
+    {
+      "id": 28,
+      "title": "Table sorting",
+      "description": "Multi-column sort with visual indicators",
+      "column": "backlog",
+      "priority": "low",
+      "position": 20
+    },
+    {
+      "id": 29,
+      "title": "Date picker component",
+      "description": "Range selection with preset options",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 21
+    },
+    {
+      "id": 30,
+      "title": "Avatar upload",
+      "description": "Crop and resize with live preview",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 22
+    },
+    {
+      "id": 31,
+      "title": "Changelog page",
+      "description": "Version history with grouped updates",
+      "column": "backlog",
+      "priority": "low",
+      "position": 23
+    },
+    {
+      "id": 32,
+      "title": "Multi-step form wizard",
+      "description": "Progress bar with step validation and summary",
+      "column": "backlog",
+      "priority": "high",
+      "position": 24
+    },
+    {
+      "id": 33,
+      "title": "Loading skeletons",
+      "description": "Shimmer placeholders for all major views",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 25
+    },
+    {
+      "id": 34,
+      "title": "Password strength meter",
+      "description": "Visual indicator with requirement checklist",
+      "column": "backlog",
+      "priority": "low",
+      "position": 26
+    },
+    {
+      "id": 35,
+      "title": "Cookie consent banner",
+      "description": "GDPR-compliant banner with preference controls",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 27
+    },
+    {
+      "id": 36,
+      "title": "404 error page",
+      "description": "Custom not-found page with navigation links",
+      "column": "backlog",
+      "priority": "low",
+      "position": 28
+    },
+    {
+      "id": 37,
+      "title": "Code splitting",
+      "description": "Route-based lazy loading with Suspense fallbacks",
+      "column": "backlog",
+      "priority": "medium",
+      "position": 29
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
