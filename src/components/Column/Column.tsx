@@ -93,7 +93,7 @@ function Column({ type, activeTask, overId }: ColumnProps) {
                     </SortableContext>
                 )}
                 {isDragging && activeTask?.column !== type && <DropZone color={color} active={dropZoneActive} type={type} />}
-                <div ref={sentinelRef} />
+                <div ref={sentinelRef} style={{ padding: 1 }} />
                 {isFetchingNextPage && (
                     <Box display="flex" justifyContent="center" py={1}>
                         <CircularProgress size={20} />
